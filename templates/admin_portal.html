@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin portal alumnos – Forja Laboral</title>
+  <style>
+    body{margin:0;background:#f3f6fb;font-family:Arial,Helvetica,sans-serif;color:#111827}.top{background:#13264b;color:#fff;padding:18px 26px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.top a{color:#fff;text-decoration:none;font-weight:800}.wrap{width:min(1160px,calc(100% - 28px));margin:26px auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 14px 36px rgba(15,23,42,.10);border:1px solid #e5e7eb}.full{grid-column:1/-1}h1,h2{margin-top:0}label{display:block;font-weight:800;margin:10px 0 6px}input,select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:12px;padding:12px;background:#f8fafc}.btn{display:inline-block;border:0;border-radius:12px;padding:12px 16px;background:#b68b2c;color:#111827;font-weight:900;text-decoration:none;cursor:pointer}.btn-dark{background:#111827;color:#fff}.msg{background:#ecfdf5;color:#065f46;border-radius:12px;padding:12px;margin-bottom:18px;font-weight:800}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:.95rem}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.stat{background:#f8fafc;border-radius:14px;padding:16px}.stat strong{display:block;font-size:2rem}@media(max-width:820px){.grid{grid-template-columns:1fr}.full{grid-column:auto}table{font-size:.86rem}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div><strong>OTEC FORJA LABORAL</strong><br><span>Admin portal alumnos</span></div>
+    <nav><a href="/administracion">Administración</a> · <a href="/portal-alumnos.html">Portal alumno</a> · <a href="/logout-portal">Cerrar sesión</a></nav>
+  </header>
+  <main class="wrap">
+    <h1>Portal alumnos — Administración</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}<div class="msg">{{ messages[0] }}</div>{% endif %}
+    {% endwith %}
+    <section class="stats">
+      <div class="stat"><span>Alumnos registrados</span><strong>{{ stats.alumnos or 0 }}</strong></div>
+      <div class="stat"><span>Documentos cargados</span><strong>{{ stats.documentos or 0 }}</strong></div>
+    </section>
+    <section class="grid" style="margin-top:18px">
+      <div class="card">
+        <h2>Crear / actualizar alumno</h2>
+        <form method="POST" action="/portal/alumnos/guardar">
+          <label>RUT</label><input name="rut" placeholder="12.345.678-9" required>
+          <label>Nombre</label><input name="nombre" placeholder="Nombre completo" required>
+          <label>Correo</label><input name="correo" type="email" placeholder="correo@ejemplo.cl">
+          <label>Clave alumno</label><input name="clave" placeholder="Clave para portal" required>
+          <label>Estado</label><select name="estado"><option>ACTIVO</option><option>INACTIVO</option></select>
+          <button class="btn" type="submit" style="margin-top:14px">Guardar alumno</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Agregar documento por URL</h2>
+        <form method="POST" action="/portal/documentos/guardar">
+          <label>RUT alumno</label><input name="rut" placeholder="RUT del alumno" required>
+          <label>Nombre documento</label><input name="nombre" placeholder="Ej: Malla curricular" required>
+          <label>URL PDF</label><input name="url" placeholder="https://drive.google.com/..." required>
+          <button class="btn" type="submit" style="margin-top:14px">Agregar documento</button>
+        </form>
+      </div>
+      <div class="card full">
+        <h2>Últimos documentos</h2>
+        <table><thead><tr><th>Alumno</th><th>RUT</th><th>Documento</th><th>URL</th><th></th></tr></thead><tbody>
+          {% for d in documentos %}
+          <tr>
+            <td>{{ d.alumno_nombre or '-' }}</td><td>{{ d.alumno_rut }}</td><td>{{ d.nombre }}</td>
+            <td><a href="{{ d.url }}" target="_blank">Abrir</a></td>
+            <td><form method="POST" action="/portal/documentos/{{ d.id }}/eliminar" onsubmit="return confirm('¿Eliminar documento?')"><button class="btn btn-dark" type="submit">Eliminar</button></form></td>
+          </tr>
+          {% else %}<tr><td colspan="5">Sin documentos.</td></tr>{% endfor %}
+        </tbody></table>
+      </div>
+      <div class="card full">
+        <h2>Alumnos</h2>
+        <table><thead><tr><th>RUT</th><th>Nombre</th><th>Correo</th><th>Estado</th><th>Clave</th></tr></thead><tbody>
+          {% for a in alumnos %}
+          <tr><td>{{ a.rut }}</td><td>{{ a.nombre }}</td><td>{{ a.correo or '-' }}</td><td>{{ a.estado }}</td><td>{{ a.clave }}</td></tr>
+          {% else %}<tr><td colspan="5">Sin alumnos registrados.</td></tr>{% endfor %}
+        </tbody></table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

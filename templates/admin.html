@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Admin certificados - Forja Pro{% endblock %}
+{% block content %}
+<section class="hero-pro">
+  <div>
+    <p class="eyebrow">Panel Empresa Pro</p>
+    <h1>Sistema de certificación digital</h1>
+    <p>Emite certificados con ID automático, QR verificable, PDF profesional, control de estado y exportación CSV.</p>
+    <div class="actions">
+      <a class="btn dark" href="/dashboard">Dashboard</a>
+      <a class="btn light" href="/export/certificados.csv">Exportar CSV</a>
+    </div>
+  </div>
+  <img src="{{ url_for('static', filename='img/logo_forja.png') }}" class="hero-logo" alt="Forja Laboral">
+</section>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}<div class="ok">{{ messages[0] }}</div>{% endif %}
+{% endwith %}
+
+<section class="stats-grid">
+  <article><strong>{{ stats.total or 0 }}</strong><span>Total certificados</span></article>
+  <article><strong>{{ stats.vigentes or 0 }}</strong><span>Vigentes</span></article>
+  <article><strong>{{ stats.vencidos or 0 }}</strong><span>Vencidos</span></article>
+  <article><strong>{{ stats.revocados or 0 }}</strong><span>Revocados</span></article>
+</section>
+
+<section class="card">
+  <h2>Crear certificado</h2>
+  <form method="post" action="/crear" class="form pro-form">
+    <label>Nombre alumno<input name="nombre" required placeholder="Nombre completo"></label>
+    <label>RUT<input name="rut" placeholder="12.345.678-9"></label>
+    <label>Correo<input name="correo" type="email" placeholder="correo@empresa.cl"></label>
+    <label>Curso
+      <input list="cursos-list" name="curso" required placeholder="Ej: Operador Grúa Horquilla">
+      <datalist id="cursos-list">
+        {% for curso in cursos %}<option value="{{ curso.nombre }}">{% endfor %}
+      </datalist>
+    </label>
+    <label>Nivel<input name="nivel" placeholder="Inicial / Medio / Avanzado"></label>
+    <label>Horas<input name="horas" type="number" placeholder="40"></label>
+    <label>Nota final<input name="nota_final" placeholder="Aprobado / 6.5 / 95%"></label>
+    <label>Fecha inicio<input name="fecha_inicio" type="date"></label>
+    <label>Fecha término<input name="fecha_termino" type="date" required></label>
+    <label>Instructor<input name="instructor" placeholder="Nombre instructor"></label>
+    <label>Empresa<input name="empresa" placeholder="Empresa contratante"></label>
+    <label>Estado
+      <select name="estado">
+        <option>VIGENTE</option><option>VENCIDO</option><option>REVOCADO</option>
+      </select>
+    </label>
+    <button class="btn primary" type="submit">Crear certificado con QR</button>
+  </form>
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Certificados emitidos</h2>
+    <input id="searchTable" class="search-input" placeholder="Buscar por alumno, RUT, curso o código...">
+  </div>
+  <div class="table-wrap">
+    <table class="pro-table" id="certTable">
+      <thead>
+        <tr>
+          <th>ID</th><th>Alumno</th><th>RUT</th><th>Curso</th><th>Estado</th><th>Código</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in alumnos %}
+        <tr>
+          <td>{{ a.alumno_id }}</td>
+          <td>{{ a.nombre }}</td>
+          <td>{{ a.rut }}</td>
+          <td>{{ a.curso }}</td>
+          <td><span class="badge {{ a.estado|lower }}">{{ a.estado }}</span></td>
+          <td><code>{{ a.codigo_verificacion }}</code></td>
+          <td class="row-actions">
+            <a href="/verificar/{{ a.codigo_verificacion }}" target="_blank">Ver</a>
+            <a href="/certificados/{{ a.codigo_verificacion }}/pdf">PDF</a>
+            <form method="post" action="/certificados/{{ a.codigo_verificacion }}/estado">
+              <select name="estado" onchange="this.form.submit()">
+                <option {% if a.estado=='VIGENTE' %}selected{% endif %}>VIGENTE</option>
+                <option {% if a.estado=='VENCIDO' %}selected{% endif %}>VENCIDO</option>
+                <option {% if a.estado=='REVOCADO' %}selected{% endif %}>REVOCADO</option>
+              </select>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7">Aún no hay certificados creados.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Últimos eventos de auditoría</h2>
+  <div class="audit-list">
+    {% for l in logs %}
+      <div><strong>{{ l.accion }}</strong><span>{{ l.detalle }}</span><small>{{ l.created_at }}</small></div>
+    {% else %}
+      <p>Sin eventos registrados.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const input = document.getElementById('searchTable');
+const rows = [...document.querySelectorAll('#certTable tbody tr')];
+if (input) {
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase();
+    rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
+  });
+}
+</script>
+{% endblock %}

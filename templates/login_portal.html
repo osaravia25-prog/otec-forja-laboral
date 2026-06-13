@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login portal alumnos – Forja Laboral</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,rgba(15,23,42,.94),rgba(30,41,59,.90)),url('/img/fondo-mineria.png') center/cover no-repeat;font-family:Arial,Helvetica,sans-serif;padding:22px;box-sizing:border-box}
+    .box{width:min(460px,100%);background:#fff;border-radius:24px;padding:32px;box-shadow:0 24px 70px rgba(0,0,0,.38)}
+    img{display:block;width:150px;margin:0 auto 18px} h1{text-align:center;color:#0f172a;margin:0 0 8px}.sub{text-align:center;color:#475569;line-height:1.55}
+    label{display:block;font-weight:800;margin:14px 0 8px} input{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:14px;padding:14px;background:#f8fafc}
+    button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:14px;background:#b68b2c;color:#111827;font-weight:900;cursor:pointer}
+    .error{margin:14px 0 0;padding:12px;border-radius:12px;background:#fee2e2;color:#991b1b;font-weight:800;text-align:center}
+    .links{margin-top:18px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}.links a{color:#0f172a;font-weight:800;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="box">
+    <img src="/img/logo_forja_sin_fondo.png" alt="Forja Laboral">
+    <h1>Admin portal alumnos</h1>
+    <p class="sub">Gestión interna de alumnos, claves y documentos PDF por URL.</p>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}<div class="error">{{ messages[0] }}</div>{% endif %}
+    {% endwith %}
+    <form method="POST">
+      <label>Usuario</label><input name="usuario" autocomplete="username" required>
+      <label>Contraseña</label><input name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Ingresar</button>
+    </form>
+    <div class="links"><a href="/administracion">Administración</a><a href="/">Web pública</a></div>
+  </main>
+</body>
+</html>

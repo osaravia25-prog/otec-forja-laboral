@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Forja Pro{% endblock %}
+{% block content %}
+<section class="hero-pro">
+  <div>
+    <p class="eyebrow">Dashboard ejecutivo</p>
+    <h1>Control empresarial Forja Laboral</h1>
+    <p>Resumen de certificados, cursos emitidos, estados y últimos movimientos de la plataforma.</p>
+    <div class="actions">
+      <a class="btn primary" href="/admin">Crear certificado</a>
+      <a class="btn dark" href="/administracion">Administración</a>
+    </div>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article><strong>{{ stats.total or 0 }}</strong><span>Total certificados</span></article>
+  <article><strong>{{ stats.vigentes or 0 }}</strong><span>Vigentes</span></article>
+  <article><strong>{{ stats.vencidos or 0 }}</strong><span>Vencidos</span></article>
+  <article><strong>{{ stats.revocados or 0 }}</strong><span>Revocados</span></article>
+</section>
+
+<section class="dashboard-grid">
+  <div class="card">
+    <h2>Certificados por curso</h2>
+    <canvas id="cursoChart" height="120"></canvas>
+  </div>
+  <div class="card">
+    <h2>Últimos certificados</h2>
+    <div class="mini-list">
+      {% for a in ultimos %}
+      <a href="/verificar/{{ a.codigo_verificacion }}" target="_blank">
+        <strong>{{ a.nombre }}</strong>
+        <span>{{ a.curso }} · {{ a.estado }}</span>
+      </a>
+      {% else %}
+      <p>Sin certificados emitidos todavía.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const labels = {{ por_curso|map(attribute='curso')|list|tojson }};
+const values = {{ por_curso|map(attribute='total')|list|tojson }};
+new Chart(document.getElementById('cursoChart'), {
+  type: 'bar',
+  data: { labels, datasets: [{ label: 'Certificados', data: values }] },
+  options: { responsive: true, plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}

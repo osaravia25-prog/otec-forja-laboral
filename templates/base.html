@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Forja Laboral Empresa Pro{% endblock %}</title>
+  <meta name="description" content="Plataforma OTEC Forja Laboral: certificación digital, QR, portal alumnos y administración empresarial.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  {% if session.get('forja_admin_logged') %}
+  <nav class="pro-nav">
+    <a class="brand" href="/dashboard">Forja Pro</a>
+    <a href="/">Web</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/admin">Certificados</a>
+    <a href="/login-portal">Admin portal</a>
+    <a href="/verificar-certificado.html">Verificador</a>
+    <a class="logout" href="/logout">Cerrar sesión</a>
+  </nav>
+  {% endif %}
+  <main class="wrap">{% block content %}{% endblock %}</main>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
